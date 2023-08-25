@@ -46,7 +46,7 @@ report 50100 "Value Entry"
         ValueEntry.SetCurrentKey("Item No.");
         ValueEntry.SetRange("Adjustment", false);
         ValueEntry.Ascending(true);
-        // ValueEntry.SetRange("Posting Date", 20230101D, 20231231D);
+        //ValueEntry.SetRange("Posting Date", 20230101D, 20231231D);
         if ValueEntry.FindSet() then begin
 
             Window.Open(CalculatingLinesMsg + CurrentItemMsg);
@@ -90,20 +90,25 @@ report 50100 "Value Entry"
     local procedure MakeExcelDataHeader()
     begin
         ExcelBuf.NewRow;
+        ExcelBuf.AddColumn('Code', FALSE, '', TRUE, FALSE, TRUE, '', ExcelBuf."Cell Type"::Text);
+        ExcelBuf.AddColumn('Description', FALSE, '', TRUE, FALSE, TRUE, '', ExcelBuf."Cell Type"::Text);
         ExcelBuf.AddColumn('Total', FALSE, '', TRUE, FALSE, TRUE, '', ExcelBuf."Cell Type"::Text);
-        ExcelBuf.AddColumn('Item Category', FALSE, '', TRUE, FALSE, TRUE, '', ExcelBuf."Cell Type"::Text);
     end;
 
     local procedure CreateExcelBody()
     var
-        ItemCategory: Text;
-        Total: decimal;
+        ItemCategoryCode: Text;
+        Total: Decimal;
+        IC: Record "Item Category";
     begin
-        foreach ItemCategory in DictionaryEntryNoByCategory.Keys do begin
-            DictionaryEntryNoByCategory.Get(ItemCategory, Total);
+        foreach ItemCategoryCode in DictionaryEntryNoByCategory.Keys do begin
+            DictionaryEntryNoByCategory.Get(ItemCategoryCode, Total);
+
+            if IC.Get(ItemCategoryCode) then;
 
             ExcelBuf.NewRow;
-            ExcelBuf.AddColumn(ItemCategory, FALSE, '', FALSE, FALSE, FALSE, '#,##0.00', ExcelBuf."Cell Type"::Number);
+            ExcelBuf.AddColumn(ItemCategoryCode, FALSE, '', FALSE, FALSE, FALSE, '', ExcelBuf."Cell Type"::Text);
+            ExcelBuf.AddColumn(IC.Description, FALSE, '', FALSE, FALSE, FALSE, '', ExcelBuf."Cell Type"::Text);
             ExcelBuf.AddColumn(Total, FALSE, '', FALSE, FALSE, FALSE, '#,##0.00', ExcelBuf."Cell Type"::Number);
         end;
     end;
